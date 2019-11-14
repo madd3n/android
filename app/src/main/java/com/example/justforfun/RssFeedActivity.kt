@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.util.Xml
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 import kotlinx.android.synthetic.main.activity_rss_feed.*
+import kotlinx.android.synthetic.main.item_rss_feed.*
 
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -29,11 +29,7 @@ class RssFeedActivity : AppCompatActivity() {
 
     private var mRecyclerView: RecyclerView? = null
     private var mEditText: EditText? = null
-    private var mFetchFeedButton: Button? = null
     private var mSwipeLayout: SwipeRefreshLayout? = null
-    private var mFeedTitleTextView: TextView? = null
-    private var mFeedLinkTextView: TextView? = null
-    private var mFeedDescriptionTextView: TextView? = null
 
     private var mFeedModelList: List<RssFeedModel>? = null
     private var mFeedTitle: String? = null
@@ -44,18 +40,18 @@ class RssFeedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rss_feed)
 
-        mRecyclerView = recyclerView as RecyclerView
-        mEditText = rssFeedEditText as EditText
-        mFetchFeedButton = fetchFeedButton as Button
-        mSwipeLayout = swipeRefreshLayout as SwipeRefreshLayout
-        mFeedTitleTextView =feedTitle as TextView
-        mFeedDescriptionTextView = feedDescription as TextView
-        mFeedLinkTextView = feedLink as TextView
+        mRecyclerView = recyclerView
+        mEditText = rssFeedEditText
+        mSwipeLayout = swipeRefreshLayout
 
-        mRecyclerView!!.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        fetchFeedButton.setOnClickListener {
 
-        mFetchFeedButton!!.setOnClickListener { FetchFeedTask().execute(null as Void?) }
-        mSwipeLayout!!.setOnRefreshListener { FetchFeedTask().execute(null as Void?) }
+            FetchFeedTask().execute()
+        }
+        swipeRefreshLayout.setOnRefreshListener { FetchFeedTask().execute() }
+
+
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
@@ -138,13 +134,13 @@ class RssFeedActivity : AppCompatActivity() {
             mFeedTitle = null
             mFeedLink = null
             mFeedDescription = null
-            mFeedTitleTextView!!.text = "Feed Title: " + mFeedTitle!!
-            mFeedDescriptionTextView!!.text = "Feed Description: " + mFeedDescription!!
-            mFeedLinkTextView!!.text = "Feed Link: " + mFeedLink!!
+
             urlLink = mEditText!!.text.toString()
         }
 
         override fun doInBackground(vararg voids: Void): Boolean? {
+
+
             if (TextUtils.isEmpty(urlLink))
                 return false
 
@@ -169,11 +165,8 @@ class RssFeedActivity : AppCompatActivity() {
             mSwipeLayout!!.isRefreshing = false
 
             if (success) {
-                mFeedTitleTextView!!.text = "Feed Title: " + mFeedTitle!!
-                mFeedDescriptionTextView!!.text = "Feed Description: " + mFeedDescription!!
-                mFeedLinkTextView!!.text = "Feed Link: " + mFeedLink!!
-                // Fill RecyclerView
                 mRecyclerView!!.adapter = RssFeedListAdapter(this@RssFeedActivity.mFeedModelList!!)
+
             } else {
                 Toast.makeText(
                     this@RssFeedActivity,
