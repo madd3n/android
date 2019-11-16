@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_rss_feed.*
 import kotlinx.android.synthetic.main.item_rss_feed.view.*
+import com.squareup.picasso.Picasso
+
 
 class RssFeedListAdapter(private var mRssFeedModels: List<RssFeedModel>) : RecyclerView.Adapter<RssFeedListAdapter.FeedModelViewHolder>() {
 
@@ -31,8 +32,7 @@ class RssFeedListAdapter(private var mRssFeedModels: List<RssFeedModel>) : Recyc
 
             holder.itemView.titleText.text = rssFeedModel.title
             holder.itemView.descriptionText.text = rssFeedModel.description
-            //holder.itemView.linkText.text = rssFeedModel.link
-            holder.itemView.rssFeedImage.setImageURI(Uri.parse(rssFeedModel.imageLink))
+            Picasso.get().load(Uri.parse(rssFeedModel.imageLink)).into(holder.itemView.rssFeedImage)
 
             holder.itemView.rssFeedImage.setOnClickListener {
                 Toast.makeText(

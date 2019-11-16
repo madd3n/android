@@ -83,40 +83,32 @@ class RssFeedActivity : AppCompatActivity() {
                 var imageUrl =""
 
                 //if(xmlPullParser.next() == XmlPullParser.)
-                if(isItem && xmlPullParser.attributeCount >1)
-                    imageUrl = xmlPullParser.getAttributeValue(null,"url")
-
-
+                if(isItem && xmlPullParser.attributeCount >1) {
+                    imageUrl = xmlPullParser.getAttributeValue(null, "url")
+                }
 
                 if (xmlPullParser.next() == XmlPullParser.TEXT) {
                     result = xmlPullParser.text
-
                     xmlPullParser.nextTag()
                 }
 
-                if (name.equals("title", ignoreCase = true)) {
-                    title = result
-                } else if (name.equals("link", ignoreCase = true)) {
-                    link = result
-                } else if (name.equals("description", ignoreCase = true)) {
-                    description = result
-                }else if (name.equals("enclosure", ignoreCase = true)) {
-                    image = imageUrl
+                when {
+                    name.equals("title", ignoreCase = true) -> title = result
+                    name.equals("link", ignoreCase = true) -> link = result
+                    name.equals("description", ignoreCase = true) -> description = result
+                    name.equals("enclosure", ignoreCase = true) -> image = imageUrl
                 }
 
                 if (title != null && link != null && description != null && image != null) {
                     if (isItem) {
                         val item = RssFeedModel(title, link, description, image)
                         items.add(item)
-                    /*} else {
-                        mFeedTitle = title
-                        mFeedLink = link
-                        mFeedDescription = description*/
                     }
 
                     title = null
                     link = null
                     description = null
+                    image = null
                     isItem = false
                 }
             }
