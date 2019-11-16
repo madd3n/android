@@ -1,3 +1,3 @@
 package com.example.justforfun
 
-class RssFeedModel(var title: String, var link: String, var description: String)
+data class RssFeedModel(val title: String, val link: String, val description: String, val imageLink:String)

@@ -1,6 +1,7 @@
 package com.example.justforfun
 
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_rss_feed.*
 import kotlinx.android.synthetic.main.item_rss_feed.view.*
 
-class RssFeedListAdapter() : RecyclerView.Adapter<RssFeedListAdapter.FeedModelViewHolder>() {
-    constructor(mFeedModelList: List<RssFeedModel>):this(){
-        mRssFeedModels = mFeedModelList
-    }
+class RssFeedListAdapter(private var mRssFeedModels: List<RssFeedModel>) : RecyclerView.Adapter<RssFeedListAdapter.FeedModelViewHolder>() {
 
-    var context : Context? = null
+    lateinit var context : Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedModelViewHolder {
             var v = LayoutInflater.from(parent.context)
@@ -25,27 +23,25 @@ class RssFeedListAdapter() : RecyclerView.Adapter<RssFeedListAdapter.FeedModelVi
         }
 
         override fun getItemCount(): Int {
-            return mRssFeedModels?.size ?: 0
+            return mRssFeedModels.size
         }
 
         override fun onBindViewHolder(holder: FeedModelViewHolder, position: Int) {
-            var rssFeedModel = mRssFeedModels?.get(position)
+            var rssFeedModel = mRssFeedModels[position]
 
-            holder.itemView.titleText.text = rssFeedModel?.title
-            holder.itemView.descriptionText.text = rssFeedModel?.description
-            holder.itemView.linkText.text = rssFeedModel?.link
+            holder.itemView.titleText.text = rssFeedModel.title
+            holder.itemView.descriptionText.text = rssFeedModel.description
+            //holder.itemView.linkText.text = rssFeedModel.link
+            holder.itemView.rssFeedImage.setImageURI(Uri.parse(rssFeedModel.imageLink))
 
-            holder.itemView.linkText.setOnClickListener {
+            holder.itemView.rssFeedImage.setOnClickListener {
                 Toast.makeText(
                     context,
-                    "Link:" + holder.itemView.linkText.text,
+                    "Link:" + rssFeedModel.link,
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
 
-        var mRssFeedModels: List<RssFeedModel>? = null
-
         class FeedModelViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
 }

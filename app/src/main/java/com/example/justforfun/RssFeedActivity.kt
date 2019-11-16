@@ -27,10 +27,6 @@ import java.util.ArrayList
 
 class RssFeedActivity : AppCompatActivity() {
 
-    private var mRecyclerView: RecyclerView? = null
-    private var mEditText: EditText? = null
-    private var mSwipeLayout: SwipeRefreshLayout? = null
-
     private var mFeedModelList: List<RssFeedModel>? = null
     private var mFeedTitle: String? = null
     private var mFeedLink: String? = null
@@ -40,18 +36,12 @@ class RssFeedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rss_feed)
 
-        mRecyclerView = recyclerView
-        mEditText = rssFeedEditText
-        mSwipeLayout = swipeRefreshLayout
-
         recyclerView.layoutManager = LinearLayoutManager(this)
         fetchFeedButton.setOnClickListener {
 
             FetchFeedTask().execute()
         }
         swipeRefreshLayout.setOnRefreshListener { FetchFeedTask().execute() }
-
-
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
@@ -59,6 +49,7 @@ class RssFeedActivity : AppCompatActivity() {
         var title: String? = null
         var link: String? = null
         var description: String? = null
+        var image: String? = null
         var isItem = false
         val items = ArrayList<RssFeedModel>()
 
@@ -89,8 +80,17 @@ class RssFeedActivity : AppCompatActivity() {
 
                 Log.d("MainActivity", "Parsing name ==> $name")
                 var result = ""
+                var imageUrl =""
+
+                //if(xmlPullParser.next() == XmlPullParser.)
+                if(isItem && xmlPullParser.attributeCount >1)
+                    imageUrl = xmlPullParser.getAttributeValue(null,"url")
+
+
+
                 if (xmlPullParser.next() == XmlPullParser.TEXT) {
                     result = xmlPullParser.text
+
                     xmlPullParser.nextTag()
                 }
 
@@ -100,16 +100,18 @@ class RssFeedActivity : AppCompatActivity() {
                     link = result
                 } else if (name.equals("description", ignoreCase = true)) {
                     description = result
+                }else if (name.equals("enclosure", ignoreCase = true)) {
+                    image = imageUrl
                 }
 
-                if (title != null && link != null && description != null) {
+                if (title != null && link != null && description != null && image != null) {
                     if (isItem) {
-                        val item = RssFeedModel(title, link, description)
+                        val item = RssFeedModel(title, link, description, image)
                         items.add(item)
-                    } else {
+                    /*} else {
                         mFeedTitle = title
                         mFeedLink = link
-                        mFeedDescription = description
+                        mFeedDescription = description*/
                     }
 
                     title = null
@@ -130,12 +132,12 @@ class RssFeedActivity : AppCompatActivity() {
         private var urlLink: String? = null
 
         override fun onPreExecute() {
-            mSwipeLayout!!.isRefreshing = true
+            swipeRefreshLayout.isRefreshing = true
             mFeedTitle = null
             mFeedLink = null
             mFeedDescription = null
 
-            urlLink = mEditText!!.text.toString()
+            urlLink = rssFeedEditText.text.toString()
         }
 
         override fun doInBackground(vararg voids: Void): Boolean? {
@@ -162,10 +164,10 @@ class RssFeedActivity : AppCompatActivity() {
         }
 
         override fun onPostExecute(success: Boolean) {
-            mSwipeLayout!!.isRefreshing = false
+            swipeRefreshLayout.isRefreshing = false
 
             if (success) {
-                mRecyclerView!!.adapter = RssFeedListAdapter(this@RssFeedActivity.mFeedModelList!!)
+                recyclerView.adapter = RssFeedListAdapter(this@RssFeedActivity.mFeedModelList!!)
 
             } else {
                 Toast.makeText(
