@@ -32,14 +32,18 @@ class RssFeedListAdapter(private var mRssFeedModels: List<RssFeedModel>) : Recyc
 
             holder.itemView.titleText.text = rssFeedModel.title
             holder.itemView.descriptionText.text = rssFeedModel.description
-            Picasso.get().load(Uri.parse(rssFeedModel.imageLink)).into(holder.itemView.rssFeedImage)
 
-            holder.itemView.rssFeedImage.setOnClickListener {
-                Toast.makeText(
-                    context,
-                    "Link:" + rssFeedModel.link,
-                    Toast.LENGTH_LONG
-                ).show()
+            if(rssFeedModel.imageLink != null){
+
+                Picasso.get().load(Uri.parse(rssFeedModel.imageLink)).into(holder.itemView.rssFeedImage)
+
+                holder.itemView.rssFeedImage.setOnClickListener {
+                    Toast.makeText(
+                        context,
+                        "Link:" + rssFeedModel.link,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 

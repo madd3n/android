@@ -5,18 +5,17 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.util.Xml
-import android.widget.EditText
-import android.widget.TextView
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.navigation.NavigationView
 
 import kotlinx.android.synthetic.main.activity_rss_feed.*
-import kotlinx.android.synthetic.main.item_rss_feed.*
-
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
@@ -31,17 +30,74 @@ class RssFeedActivity : AppCompatActivity() {
     private var mFeedTitle: String? = null
     private var mFeedLink: String? = null
     private var mFeedDescription: String? = null
+    private lateinit var mDrawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rss_feed)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        fetchFeedButton.setOnClickListener {
+        /*fetchFeedButton.setOnClickListener {
 
             FetchFeedTask().execute()
         }
-        swipeRefreshLayout.setOnRefreshListener { FetchFeedTask().execute() }
+        */
+/*
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+*/
+
+        val actionbar: ActionBar? = supportActionBar
+        actionbar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.mipmap.ic_launcher_round)
+        }
+
+        mDrawerLayout = findViewById(R.id.drawer_layout)
+
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            // set item as selected to persist highlight
+            menuItem.isChecked = true
+            // close drawer when item is tapped
+            mDrawerLayout.closeDrawers()
+
+            // Handle navigation view item clicks here.
+            when (menuItem.itemId) {
+
+                R.id.nav_record -> {
+                    FetchFeedTask("https://www.record.pt/rss").execute()
+                    swipeRefreshLayout.setOnRefreshListener { FetchFeedTask("https://www.record.pt/rss").execute() }
+                }
+                R.id.nav_jornaldenegocios -> {
+                    FetchFeedTask("https://www.jornaldenegocios.pt/rss").execute()
+                    swipeRefreshLayout.setOnRefreshListener { FetchFeedTask("https://www.jornaldenegocios.pt/rss").execute() }
+                }
+                /*R.id.nav_offer -> {
+                    Toast.makeText(this, "Offer", Toast.LENGTH_LONG).show()
+                }
+                R.id.nav_setting -> {
+                    Toast.makeText(this, "Setting", Toast.LENGTH_LONG).show()
+                }*/
+            }
+            // Add code here to update the UI based on the item selected
+            // For example, swap UI fragments here
+
+            true
+        }
+    }
+
+    //appbar - toolbar button click
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                mDrawerLayout.openDrawer(GravityCompat.START)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
@@ -99,10 +155,29 @@ class RssFeedActivity : AppCompatActivity() {
                     name.equals("enclosure", ignoreCase = true) -> image = imageUrl
                 }
 
-                if (title != null && link != null && description != null && image != null) {
+                if (title != null && link != null && description != null && image!= null) {
+
                     if (isItem) {
-                        val item = RssFeedModel(title, link, description, image)
-                        items.add(item)
+                        if(image!= null) {
+
+                            items.add(RssFeedModel(
+                                title = title,
+                                link = link,
+                                description = description,
+                                imageLink = image
+                            ))
+                            /*items.add(item)*/
+                        }
+                        /*else
+                        {
+                            items.add(RssFeedModel(
+                                title = title,
+                                link = link,
+                                description = description,
+                                imageLink = null
+                            ))
+                            *//*items.add(item)*//*
+                        }*/
                     }
 
                     title = null
@@ -111,6 +186,23 @@ class RssFeedActivity : AppCompatActivity() {
                     image = null
                     isItem = false
                 }
+                /*else if(title != null && link != null && description != null && image == null) {
+                    if (isItem) {
+                        val item = RssFeedModel(
+                            title = title,
+                            link = link,
+                            description = description,
+                            imageLink = image
+                        )
+                        items.add(item)
+                    }
+
+                    title = null
+                    link = null
+                    description = null
+                    image = null
+                    isItem = false
+                }*/
             }
 
             return items
@@ -119,9 +211,9 @@ class RssFeedActivity : AppCompatActivity() {
         }
     }
 
-    private inner class FetchFeedTask : AsyncTask<Void, Void, Boolean>() {
+    private inner class FetchFeedTask(var url:String) : AsyncTask<Void, Void, Boolean>() {
 
-        private var urlLink: String? = null
+        //private var urlLink: String? = null
 
         override fun onPreExecute() {
             swipeRefreshLayout.isRefreshing = true
@@ -129,20 +221,20 @@ class RssFeedActivity : AppCompatActivity() {
             mFeedLink = null
             mFeedDescription = null
 
-            urlLink = rssFeedEditText.text.toString()
+            //urlLink = rssFeedEditText.text.toString()
         }
 
         override fun doInBackground(vararg voids: Void): Boolean? {
 
 
-            if (TextUtils.isEmpty(urlLink))
+            if (TextUtils.isEmpty(url))
                 return false
 
             try {
-                if (!urlLink!!.startsWith("http://") && !urlLink!!.startsWith("https://"))
-                    urlLink = "http://" + urlLink!!
+                if (!url.startsWith("http://") && !url.startsWith("https://"))
+                    url = "http://$url"
 
-                val url = URL(urlLink!!)
+                val url = URL(url)
                 val inputStream = url.openConnection().getInputStream()
                 mFeedModelList = parseFeed(inputStream)
                 return true

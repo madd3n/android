@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <group android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_record"
+                android:icon="@mipmap/ic_launcher_round"
+                android:title="Record" />
+            <item
+                android:id="@+id/nav_jornaldenegocios"
+                android:icon="@mipmap/ic_launcher_round"
+                android:title="Jornal de Negócios" />
+            <!--<item
+                android:id="@+id/nav_offer"
+                android:icon="@mipmap/ic_launcher_round"
+                android:title="Offers" />
+            <item
+                android:id="@+id/nav_setting"
+                android:icon="@mipmap/ic_launcher_round"
+                android:title="Setting" />-->
+        </group>
+
+</menu>
