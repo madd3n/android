@@ -41,9 +41,6 @@ class RssFeedActivity : AppCompatActivity() {
 
             FetchFeedTask().execute()
         }
-        */
-/*
-
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 */
@@ -74,10 +71,11 @@ class RssFeedActivity : AppCompatActivity() {
                     FetchFeedTask("https://www.jornaldenegocios.pt/rss").execute()
                     swipeRefreshLayout.setOnRefreshListener { FetchFeedTask("https://www.jornaldenegocios.pt/rss").execute() }
                 }
-                /*R.id.nav_offer -> {
-                    Toast.makeText(this, "Offer", Toast.LENGTH_LONG).show()
+                R.id.nav_CoinTelegraph -> {
+                    FetchFeedTask("https://cointelegraph.com/rss").execute()
+                    swipeRefreshLayout.setOnRefreshListener { FetchFeedTask("https://cointelegraph.com/rss").execute() }
                 }
-                R.id.nav_setting -> {
+                /*R.id.nav_setting -> {
                     Toast.makeText(this, "Setting", Toast.LENGTH_LONG).show()
                 }*/
             }
@@ -142,7 +140,6 @@ class RssFeedActivity : AppCompatActivity() {
                 if(isItem && xmlPullParser.attributeCount >1) {
                     imageUrl = xmlPullParser.getAttributeValue(null, "url")
                 }
-
                 if (xmlPullParser.next() == XmlPullParser.TEXT) {
                     result = xmlPullParser.text
                     xmlPullParser.nextTag()
@@ -152,32 +149,18 @@ class RssFeedActivity : AppCompatActivity() {
                     name.equals("title", ignoreCase = true) -> title = result
                     name.equals("link", ignoreCase = true) -> link = result
                     name.equals("description", ignoreCase = true) -> description = result
-                    name.equals("enclosure", ignoreCase = true) -> image = imageUrl
+                    name.equals("enclosure", ignoreCase = true) -> image =  xmlPullParser.getAttributeValue(null, "url")//imageUrl
                 }
 
                 if (title != null && link != null && description != null && image!= null) {
 
                     if (isItem) {
-                        if(image!= null) {
-
-                            items.add(RssFeedModel(
-                                title = title,
-                                link = link,
-                                description = description,
-                                imageLink = image
-                            ))
-                            /*items.add(item)*/
-                        }
-                        /*else
-                        {
-                            items.add(RssFeedModel(
-                                title = title,
-                                link = link,
-                                description = description,
-                                imageLink = null
-                            ))
-                            *//*items.add(item)*//*
-                        }*/
+                        items.add(RssFeedModel(
+                            title = title,
+                            link = link,
+                            description = description,
+                            imageLink = image
+                        ))
                     }
 
                     title = null
@@ -186,23 +169,6 @@ class RssFeedActivity : AppCompatActivity() {
                     image = null
                     isItem = false
                 }
-                /*else if(title != null && link != null && description != null && image == null) {
-                    if (isItem) {
-                        val item = RssFeedModel(
-                            title = title,
-                            link = link,
-                            description = description,
-                            imageLink = image
-                        )
-                        items.add(item)
-                    }
-
-                    title = null
-                    link = null
-                    description = null
-                    image = null
-                    isItem = false
-                }*/
             }
 
             return items

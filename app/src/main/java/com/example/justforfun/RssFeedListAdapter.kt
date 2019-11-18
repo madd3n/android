@@ -44,6 +44,14 @@ class RssFeedListAdapter(private var mRssFeedModels: List<RssFeedModel>) : Recyc
                         Toast.LENGTH_LONG
                     ).show()
                 }
+
+                holder.itemView.titleText.setOnClickListener {
+                    Toast.makeText(
+                        context,
+                        "Link:" + rssFeedModel.imageLink,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
